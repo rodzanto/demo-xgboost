@@ -64,11 +64,11 @@
 		document.getElementById('chartContainer').style.border="inset";
 		if (Number(response) >= 0.5) {
 			console.log("Fraud image");
-			document.getElementById('fimg').src="https://www.creditrepair.com/blog/wp-content/uploads/2016/04/shutterstock_344117816-1.jpg";
+			document.getElementById('fimg').src="";
 			document.getElementById('fimg').style.display="block";
 		} else if (Number(response) < 0.5) {
 			console.log("Valid image");
-			document.getElementById('fimg').src="https://www.blueworx.com/wp-content/uploads/2017/11/happy-customer-png-5.jpg";
+			document.getElementById('fimg').src="";
 			document.getElementById('fimg').style.display="block";
 		}
 	}
@@ -109,7 +109,7 @@ chart.render();
 </head>
 <body>
 <div class="header">
-	<img src="https://www.seguroscatalanaoccidente.com/img/esp/sco/ll/seguros-catalana-occidente/logo_home_sco_esp.svg" alt="Catalana">
+	<img src="" alt="Logo">
 	<h2>Predictive Analytics - Fraud analysis dashboard</h2>
 </div>
 <br>
