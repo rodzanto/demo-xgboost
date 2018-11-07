@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<style>
+	.header img {
+	  float: left;
+	  width: 200px;
+	  height: 50px;
+	}
+
+	.header h2 {
+	  position: relative;
+	  top: 10px;
+	  left: 30px;
+	  color: grey;
+	}
+</style>
+<script>
+	var response;
+
+	function myFunction() {
+	    var d1 = document.getElementById("d1").value;
+	    submitOK = "true";
+
+		console.log("Sending: " + request)
+
+	    if (d1.length == 0) {
+	        alert("Fields cannot be blank");
+	        submitOK = "false";
+	    } 
+
+	    if (submitOK == "false") {
+	        return false;
+	    }
+	    
+	    var request = ("{\"data\":\"" + document.getElementById("d1").value + "\"}")
+
+	    console.log("Sending: " + request);
+
+		$.ajax({
+			url: "https://892b5atlc2.execute-api.us-east-1.amazonaws.com/test/demo-xgboost",
+			type: "POST",
+			data: request,
+			contentType: "application/json",
+			async: false,
+			success: function(respo) {
+				console.log("Receiving: " + respo);
+				response = respo;
+				//alert("Receiving: " + response);
+
+			},
+			error: function(error) {
+	    		console.log('ERROR:', error);
+	    		document.getElementById("output").innerHTML = "Error: " + error;
+	    		return false;
+			}
+		});
+		console.log("Receiving OUTSIDE ajax: " + response);
+		myChart(response);
+		document.getElementById('output').innerHTML=("Predicted fraud probability: "+(Number(response).toFixed(4))*100+" %");
+		document.getElementById('chartContainer').style.border="inset";
+		if (Number(response) >= 0.5) {
+			console.log("Fraud image");
+			document.getElementById('fimg').src="https://www.creditrepair.com/blog/wp-content/uploads/2016/04/shutterstock_344117816-1.jpg";
+			document.getElementById('fimg').style.display="block";
+		} else if (Number(response) < 0.5) {
+			console.log("Valid image");
+			document.getElementById('fimg').src="https://www.blueworx.com/wp-content/uploads/2017/11/happy-customer-png-5.jpg";
+			document.getElementById('fimg').style.display="block";
+		}
+	}
+</script>
+
+<script>
+function myChart(resp) {
+
+var fraud = Number(resp)*100
+var not_fraud = ((1-Number(resp))*100)
+var chart = new CanvasJS.Chart("chartContainer", {
+	animationEnabled: true,
+	theme: "light2",
+	title:{
+		text: "Fraud probability (%)",
+		fontSize: 20
+	},
+	toolTip: {
+		shared: true
+	},
+	data: [{        
+		type: "pie",
+		name: "fraud_probability",
+		startAngle: 0,
+		yValueFormatString: "##0.00\"%\"",
+		indexLabel: "{label} {y}",
+		dataPoints: [
+			{ y: fraud , color: "red", label: "Predicted fraud probability", indexLabelFontSize: 16, indexLabelFontColor: "red"},
+			{ y: not_fraud , color: "#99ffcc", label: "Predicted Not-fraud probability", indexLabelFontSize: 16, indexLabelFontColor: "green"}
+		]
+	}]
+});
+chart.render();
+
+}
+</script>
+
+</head>
+<body>
+<div class="header">
+	<img src="https://www.seguroscatalanaoccidente.com/img/esp/sco/ll/seguros-catalana-occidente/logo_home_sco_esp.svg" alt="Catalana">
+	<h2>Predictive Analytics - Fraud analysis dashboard</h2>
+</div>
+<br>
+<div>
+	<img src="https://static01.m-square.com.au/wp-content/uploads/2018/04/IconOnly-1.png" style="float: left; height: 40px; width: 40px;">
+	<h4 style="position: relative; left: 10px; top: 10px;">Amazon SageMaker XGBoost model - AWS demo (Nov 2018)</h3>
+</div>
+<br>
+<h4>Insert the values for predicting the probability of fraud for a given customer...</h3>
+<small>
+Data fields:
+<br>
+Account Lenght, Vmail Message, Day (mins), Day (calls), Eve (mins), Eve (calls), Night (mins), Night (calls), Intl (mins), Intl (calls), CustServ (calls), State: AK, AL, AR, AZ, CA, CO, CT, DC, DE, FL, GA, HI, IA, ID, IL, IN, KS, KY, LA, MA, MD, ME, MI, MN, MO, MS, MT, NC, ND, NE, NH, NJ, NM, NV, NY, OH, OK, OR, PA, RI, SC, SD, TN, TX, UT, VA, VT, WA, WI, WV, WY, Area Code: 408, 415, 510, Int'l Plan: no, yes, Vmail Plan: no, yes
+<br>
+<br>
+Example data 1:
+<br>
+186,0,137.8,97,187.7,118,146.4,85,8.7,6,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0
+<br>
+Example data 2:
+<br>
+56,0,162.3,99,149.1,78,255.5,115,14.8,1,4,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0
+</small>
+<br>
+<br>
+<form id="forma" action="#">
+  Input data: <input type="text" id="d1" size="150" name="d1" value="186,0,137.8,97,187.7,118,146.4,85,8.7,6,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0"/>
+  <br>
+  <br>
+  <input type="button" value="Predict with Amazon SageMaker" onclick="myFunction();"/> 
+</form>
+<br>
+<div id="chartContainer" style="height: 300px; width: 50%;"></div>
+
+<br>
+
+<div id="output"></div>
+<img id="fimg" alt="Fraud" style="height: 150px; width: 180px; display: none;">
+
+
+</body>
+</html>
